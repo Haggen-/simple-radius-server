@@ -55,13 +55,7 @@ public class UDPServerThread implements Runnable {
                 default:
                     System.out.println("Package code received isn't handled by this server, please switch to a better RADIUS Server to remedy this. Ignoring package.");
             }
-        } catch (IllegalArgumentException ex) {
-            System.out.println(ex.getMessage());
-            ex.printStackTrace();
-        } catch (AssertionError ex) {
-            System.out.println(ex.getMessage());
-            ex.printStackTrace();
-        } catch(IOException ex) {
+        } catch (IllegalArgumentException | AssertionError | IOException ex) {
             System.out.println(ex.getMessage());
             ex.printStackTrace();
         } catch (NoSuchAlgorithmException ex) {
