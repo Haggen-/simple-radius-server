@@ -14,6 +14,6 @@ public enum RadiusPacketAttributeCode {
             if(packetCode.code == i)
                 return packetCode;
         }
-        throw new IllegalArgumentException("Invalid attribute code for se.johanhagg.interview.nexus.radius.RadiusPacketAttribute");
+        throw new IllegalArgumentException("Invalid attribute code for RadiusPacketAttribute");
     }
 }

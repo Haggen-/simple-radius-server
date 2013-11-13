@@ -13,6 +13,6 @@ public enum RadiusPacketCode {
             if(code.code == i)
                 return code;
         }
-        throw new IllegalArgumentException("Invalid code for se.johanhagg.interview.nexus.radius.RadiusPacket");
+        throw new IllegalArgumentException("Invalid code for RadiusPacket");
     }
 }
