@@ -6,10 +6,10 @@ import java.net.DatagramSocket;
 import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;
 
-import se.simple.radius.packet.RadiusPacket;
-import se.simple.radius.packet.RadiusPacketCode;
-import se.simple.radius.packet.attribute.RadiusPacketAttribute;
-import se.simple.radius.packet.attribute.RadiusPacketAttributeCode;
+import se.simple.radius.Packet;
+import se.simple.radius.PacketCode;
+import se.simple.radius.packet.Attribute;
+import se.simple.radius.packet.AttributeCode;
 
 public class UDPServerThread implements Runnable {
 
@@ -29,35 +29,35 @@ public class UDPServerThread implements Runnable {
     }
 
     private boolean isPasswordValid(String userPassword, String receivedPassword) {
-        userPassword = new String(RadiusPacketAttribute.addPaddingTo16Bits(userPassword.getBytes()), UTF8_CHARSET);
+        userPassword = new String(Attribute.addPaddingTo16Bits(userPassword.getBytes()), UTF8_CHARSET);
         return userPassword.equals(receivedPassword);
     }
 
     @Override
     public void run() {
         try {
-            RadiusPacket receivedRadiusPacket = RadiusPacket.parse(this.receivedPacket);
+            Packet receivedRadiusPacket = Packet.parse(this.receivedPacket);
             switch(receivedRadiusPacket.packetCode) {
                 case ACCESS_REQUEST: // For now, we only handle access requests.
-                    RadiusPacketCode responseCode = RadiusPacketCode.ACCESS_REJECT;
-                    RadiusPacketAttribute usernameAttr = receivedRadiusPacket.findFirstAttribute(RadiusPacketAttributeCode.USERNAME);
-                    RadiusPacketAttribute passwordAttr = receivedRadiusPacket.findFirstAttribute(RadiusPacketAttributeCode.PASSWORD);
+                    PacketCode responseCode = PacketCode.ACCESS_REJECT;
+                    Attribute usernameAttr = receivedRadiusPacket.findFirstAttribute(AttributeCode.USERNAME);
+                    Attribute passwordAttr = receivedRadiusPacket.findFirstAttribute(AttributeCode.PASSWORD);
 
                     if(usernameAttr != null && passwordAttr != null) {
                     	if(usernameAttr.isValidLength() && passwordAttr.isValidLength())
                     	{
                     		String receivedUsername = new String(usernameAttr.attributeData, UTF8_CHARSET);
-                    		String receivedPassword = RadiusPacketAttribute.decodePassword(receivedRadiusPacket.packetData, passwordAttr.attributeData, sharedSecret.getBytes());
+                    		String receivedPassword = Attribute.decodePassword(receivedRadiusPacket.packetData, passwordAttr.attributeData, sharedSecret.getBytes());
 	                        if(userExists(receivedUsername) && isPasswordValid(UDPServer.userHT.get(receivedUsername), receivedPassword)) {
-	                            responseCode = RadiusPacketCode.ACCESS_ACCEPT;
+	                            responseCode = PacketCode.ACCESS_ACCEPT;
 	                        }
                     	}
                     }
-                    if(responseCode.equals(RadiusPacketCode.ACCESS_REJECT)) {
+                    if(responseCode.equals(PacketCode.ACCESS_REJECT)) {
                         System.out.println("Invalid attributes for ACCESS REQUEST. Sending ACCESS REJECT.");
                     }
 
-                    byte[] responseData = RadiusPacket.createResponsePacket(receivedRadiusPacket, responseCode, this.sharedSecret.getBytes()).toByteArray();
+                    byte[] responseData = Packet.createResponsePacket(receivedRadiusPacket, responseCode, this.sharedSecret.getBytes()).toByteArray();
                     socket.send(new DatagramPacket(responseData, responseData.length, this.receivedPacket.getAddress(), this.receivedPacket.getPort()));
                 break;
                 default:

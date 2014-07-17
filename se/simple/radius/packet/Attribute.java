@@ -1,4 +1,4 @@
-package se.simple.radius.packet.attribute;
+package se.simple.radius.packet;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
@@ -6,15 +6,15 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
-public class RadiusPacketAttribute {
-    public RadiusPacketAttributeCode attributeCode;
+public class Attribute {
+    public AttributeCode attributeCode;
     public final static int HEADER_SIZE = 2;
     private int attributeLength;
     public byte[] attributeData;
     private static final Charset UTF8_CHARSET = Charset.forName("UTF-8");
 
-    public RadiusPacketAttribute(int code, byte[] data) throws IllegalArgumentException {
-        this.attributeCode = RadiusPacketAttributeCode.intToCode(code);
+    public Attribute(int code, byte[] data) throws IllegalArgumentException {
+        this.attributeCode = AttributeCode.intToCode(code);
         this.attributeLength = data.length + HEADER_SIZE;
         this.attributeData = data;
     }

@@ -1,4 +1,4 @@
-package se.simple.radius.packet;
+package se.simple.radius;
 
 import java.io.ByteArrayOutputStream;
 import java.net.DatagramPacket;
@@ -7,32 +7,32 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
-import se.simple.radius.packet.attribute.RadiusPacketAttribute;
-import se.simple.radius.packet.attribute.RadiusPacketAttributeCode;
+import se.simple.radius.packet.Attribute;
+import se.simple.radius.packet.AttributeCode;
 
-public class RadiusPacket {
+public class Packet {
     final static int CODE_FIELDLENGTH = 1;
     final static int IDENTIFIER_FIELDLENGTH = 1;
     final static int LENGTH_FIELDLENGTH = 2;
     final static int AUTH_FIELDLENGTH = 16;
 
-    public RadiusPacketCode packetCode;
+    public PacketCode packetCode;
     public byte[] packetData;
 
     private int packetIdentifier;
     private short packetLength;
 
 
-    ArrayList<RadiusPacketAttribute> attributes = new ArrayList<RadiusPacketAttribute>();
+    ArrayList<Attribute> attributes = new ArrayList<Attribute>();
 
-    public RadiusPacket(int code, int packetIdentifier, byte[] data) throws IllegalArgumentException {
-        this.packetCode = RadiusPacketCode.intToCode(code);
+    public Packet(int code, int packetIdentifier, byte[] data) throws IllegalArgumentException {
+        this.packetCode = PacketCode.intToCode(code);
         this.packetIdentifier = packetIdentifier;
         this.packetLength = (short)(CODE_FIELDLENGTH + IDENTIFIER_FIELDLENGTH + LENGTH_FIELDLENGTH + AUTH_FIELDLENGTH);
         this.packetData = data;
     }
 
-    public RadiusPacket(RadiusPacketCode code, int packetIdentifier, byte[] data) {
+    public Packet(PacketCode code, int packetIdentifier, byte[] data) {
         this.packetCode = code;
         this.packetIdentifier = packetIdentifier;
         this.packetLength = (short)(CODE_FIELDLENGTH + IDENTIFIER_FIELDLENGTH + LENGTH_FIELDLENGTH + AUTH_FIELDLENGTH);
@@ -40,20 +40,20 @@ public class RadiusPacket {
     }
 
     public void addAttribute(int code, int length, byte[] data) throws IllegalArgumentException {
-        this.packetLength = (short)(this.packetLength + length + RadiusPacketAttribute.HEADER_SIZE);
-        this.attributes.add(new RadiusPacketAttribute(code, data));
+        this.packetLength = (short)(this.packetLength + length + Attribute.HEADER_SIZE);
+        this.attributes.add(new Attribute(code, data));
     }
 
-    public RadiusPacketAttribute findFirstAttribute(RadiusPacketAttributeCode code) {
-        for(RadiusPacketAttribute attr : this.attributes) {
+    public Attribute findFirstAttribute(AttributeCode code) {
+        for(Attribute attr : this.attributes) {
             if(attr.attributeCode.equals(code))
                 return attr;
         }
         return null;
     }
 
-    public static RadiusPacket parse(DatagramPacket packet) throws IllegalArgumentException, AssertionError {
-        RadiusPacket rad;
+    public static Packet parse(DatagramPacket packet) throws IllegalArgumentException, AssertionError {
+        Packet rad;
         try {
             ByteBuffer bb = ByteBuffer.wrap(packet.getData());
             int packetCode = bb.get();
@@ -65,12 +65,12 @@ public class RadiusPacket {
             byte[] packetData = new byte[AUTH_FIELDLENGTH];
             bb.get(packetData, 0, AUTH_FIELDLENGTH);
 
-            rad = new RadiusPacket(packetCode, packetIdentifier, packetData);
+            rad = new Packet(packetCode, packetIdentifier, packetData);
 
             while(bb.position() < packetLength) {
                 int attrCode = bb.get();
                 int attrLength = bb.get();
-                int attrLengthWithoutHeader = attrLength-RadiusPacketAttribute.HEADER_SIZE;
+                int attrLengthWithoutHeader = attrLength-Attribute.HEADER_SIZE;
 
                 byte[] attrData = new byte[attrLengthWithoutHeader];
                 bb.get(attrData, 0, attrLengthWithoutHeader);
@@ -96,19 +96,19 @@ public class RadiusPacket {
         bos.write(buffer.array(), 0, buffer.array().length);
         bos.write(this.packetData, 0, this.packetData.length);
 
-        for(RadiusPacketAttribute attribute : this.attributes) {
+        for(Attribute attribute : this.attributes) {
             bos.write(attribute.toByteArray(), 0, attribute.toByteArray().length);
         }
 
         return bos.toByteArray();
     }
 
-    public static RadiusPacket createResponsePacket(RadiusPacket receivedPackage, RadiusPacketCode responseCode, byte[] sharedSecret) throws NoSuchAlgorithmException {
-        return new RadiusPacket(responseCode, receivedPackage.packetIdentifier, createResponseAuthenticator(responseCode, receivedPackage.packetIdentifier, receivedPackage.packetData, sharedSecret));
+    public static Packet createResponsePacket(Packet receivedPackage, PacketCode responseCode, byte[] sharedSecret) throws NoSuchAlgorithmException {
+        return new Packet(responseCode, receivedPackage.packetIdentifier, createResponseAuthenticator(responseCode, receivedPackage.packetIdentifier, receivedPackage.packetData, sharedSecret));
     }
 
-    private static byte[] createResponseAuthenticator(RadiusPacketCode code, int identifier, byte[] packageData, byte[] sharedSecret) throws NoSuchAlgorithmException {
-        RadiusPacket rad = new RadiusPacket(code, identifier, packageData);
+    private static byte[] createResponseAuthenticator(PacketCode code, int identifier, byte[] packageData, byte[] sharedSecret) throws NoSuchAlgorithmException {
+        Packet rad = new Packet(code, identifier, packageData);
 
         MessageDigest md = MessageDigest.getInstance("MD5");
         md.update(rad.toByteArray());

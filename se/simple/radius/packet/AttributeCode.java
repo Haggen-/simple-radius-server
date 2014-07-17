@@ -1,6 +1,6 @@
-package se.simple.radius.packet.attribute;
+package se.simple.radius.packet;
 
-public enum RadiusPacketAttributeCode {
+public enum AttributeCode {
     USERNAME(1, 3, null), 
     	PASSWORD(2, 18, 130), 
     		REPLY_MESSAGE(18, 3, null), 
@@ -9,15 +9,20 @@ public enum RadiusPacketAttributeCode {
     public final int code;
     private final Integer minLength;
     private final Integer maxLength;
-
-    private RadiusPacketAttributeCode(int i, Integer minLength, Integer maxLength) {
+    /**
+     * set length range, NULL undefined.
+     * @param i
+     * @param minLength
+     * @param maxLength
+     */
+    private AttributeCode(int i, Integer minLength, Integer maxLength) {
         this.code = i;
         this.minLength = minLength;
         this.maxLength = maxLength;
     }
     
-    public static RadiusPacketAttributeCode intToCode(int i) {
-        for(RadiusPacketAttributeCode packetCode : RadiusPacketAttributeCode.values()) {
+    public static AttributeCode intToCode(int i) {
+        for(AttributeCode packetCode : AttributeCode.values()) {
             if(packetCode.code == i)
                 return packetCode;
         }
