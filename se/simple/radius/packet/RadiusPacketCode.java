@@ -1,7 +1,7 @@
-package se.simple.radius;
+package se.simple.radius.packet;
 
 public enum RadiusPacketCode {
-    ACCESS_REQUEST(1), ACCESS_ACCEPT(2), ACCESS_REJECT(3);
+    ACCESS_REQUEST(1), ACCESS_ACCEPT(2), ACCESS_REJECT(3), ACCESS_CHALLENGE(11);
     public final int code;
 
     private RadiusPacketCode(int i) {

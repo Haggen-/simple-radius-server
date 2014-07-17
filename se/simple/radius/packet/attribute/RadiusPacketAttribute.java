@@ -1,4 +1,4 @@
-package se.simple.radius;
+package se.simple.radius.packet.attribute;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
@@ -7,13 +7,13 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 public class RadiusPacketAttribute {
-    RadiusPacketAttributeCode attributeCode;
-    final static int HEADER_SIZE = 2;
+    public RadiusPacketAttributeCode attributeCode;
+    public final static int HEADER_SIZE = 2;
     private int attributeLength;
-    byte[] attributeData;
+    public byte[] attributeData;
     private static final Charset UTF8_CHARSET = Charset.forName("UTF-8");
 
-    RadiusPacketAttribute(int code, byte[] data) throws IllegalArgumentException {
+    public RadiusPacketAttribute(int code, byte[] data) throws IllegalArgumentException {
         this.attributeCode = RadiusPacketAttributeCode.intToCode(code);
         this.attributeLength = data.length + HEADER_SIZE;
         this.attributeData = data;
@@ -67,5 +67,10 @@ public class RadiusPacketAttribute {
         byte[] currentpasswordData = Arrays.copyOfRange(passwordData, len, passwordData.length);
 
         return decodePassword(requestAuthenticator, remainingPasswordData, sharedSecret) + new String(xorByteArray(generateSharedSecretRAHash(currentpasswordData, sharedSecret), passwordData), UTF8_CHARSET);
+    }
+    
+    public boolean isValidLength()
+    {
+    	return this.attributeCode.isValidLength(this.attributeLength);
     }
 }

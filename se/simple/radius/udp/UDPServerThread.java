@@ -1,10 +1,15 @@
-package se.simple.radius;
+package se.simple.radius.udp;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;
+
+import se.simple.radius.packet.RadiusPacket;
+import se.simple.radius.packet.RadiusPacketCode;
+import se.simple.radius.packet.attribute.RadiusPacketAttribute;
+import se.simple.radius.packet.attribute.RadiusPacketAttributeCode;
 
 public class UDPServerThread implements Runnable {
 
@@ -39,11 +44,14 @@ public class UDPServerThread implements Runnable {
                     RadiusPacketAttribute passwordAttr = receivedRadiusPacket.findFirstAttribute(RadiusPacketAttributeCode.PASSWORD);
 
                     if(usernameAttr != null && passwordAttr != null) {
-                        String receivedUsername = new String(usernameAttr.attributeData, UTF8_CHARSET);
-                        String receivedPassword = RadiusPacketAttribute.decodePassword(receivedRadiusPacket.packetData, passwordAttr.attributeData, sharedSecret.getBytes());
-                        if(userExists(receivedUsername) && isPasswordValid(UDPServer.userHT.get(receivedUsername), receivedPassword)) {
-                            responseCode = RadiusPacketCode.ACCESS_ACCEPT;
-                        }
+                    	if(usernameAttr.isValidLength() && passwordAttr.isValidLength())
+                    	{
+                    		String receivedUsername = new String(usernameAttr.attributeData, UTF8_CHARSET);
+                    		String receivedPassword = RadiusPacketAttribute.decodePassword(receivedRadiusPacket.packetData, passwordAttr.attributeData, sharedSecret.getBytes());
+	                        if(userExists(receivedUsername) && isPasswordValid(UDPServer.userHT.get(receivedUsername), receivedPassword)) {
+	                            responseCode = RadiusPacketCode.ACCESS_ACCEPT;
+	                        }
+                    	}
                     }
                     if(responseCode.equals(RadiusPacketCode.ACCESS_REJECT)) {
                         System.out.println("Invalid attributes for ACCESS REQUEST. Sending ACCESS REJECT.");

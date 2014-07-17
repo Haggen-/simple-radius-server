@@ -1,4 +1,4 @@
-package se.simple.radius;
+package se.simple.radius.packet;
 
 import java.io.ByteArrayOutputStream;
 import java.net.DatagramPacket;
@@ -7,14 +7,17 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
+import se.simple.radius.packet.attribute.RadiusPacketAttribute;
+import se.simple.radius.packet.attribute.RadiusPacketAttributeCode;
+
 public class RadiusPacket {
     final static int CODE_FIELDLENGTH = 1;
     final static int IDENTIFIER_FIELDLENGTH = 1;
     final static int LENGTH_FIELDLENGTH = 2;
     final static int AUTH_FIELDLENGTH = 16;
 
-    RadiusPacketCode packetCode;
-    byte[] packetData;
+    public RadiusPacketCode packetCode;
+    public byte[] packetData;
 
     private int packetIdentifier;
     private short packetLength;
