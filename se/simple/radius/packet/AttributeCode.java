@@ -1,12 +1,13 @@
 package se.simple.radius.packet;
 
 public enum AttributeCode {
-    USERNAME(1, 3, null), 
-    	PASSWORD(2, 18, 130), 
-    		REPLY_MESSAGE(18, 3, null), 
-    			NAS_IDENTIFIER(32, 3, null);
+    USERNAME(1, 3, null, AttributeType.TYPE_STRING), 
+    	PASSWORD(2, 18, 130, AttributeType.TYPE_STRING), 
+    		REPLY_MESSAGE(18, 3, null, AttributeType.TYPE_TEXT), 
+    			NAS_IDENTIFIER(32, 3, null, AttributeType.TYPE_STRING);
 
     public final int code;
+    public final AttributeType type;
     private final Integer minLength;
     private final Integer maxLength;
     /**
@@ -15,10 +16,11 @@ public enum AttributeCode {
      * @param minLength
      * @param maxLength
      */
-    private AttributeCode(int i, Integer minLength, Integer maxLength) {
+    private AttributeCode(int i, Integer minLength, Integer maxLength, AttributeType type) {
         this.code = i;
         this.minLength = minLength;
         this.maxLength = maxLength;
+        this.type = type;
     }
     
     public static AttributeCode intToCode(int i) {
@@ -46,5 +48,10 @@ public enum AttributeCode {
 		if(this.maxLength == null)
 			return true;
 		return length <= this.maxLength;
+	}
+	
+	public Object formatData(byte[] data)
+	{
+		return this.type.formatData(data);
 	}
 }
