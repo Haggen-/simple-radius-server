@@ -7,23 +7,23 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 public class Attribute {
-    public AttributeCode attributeCode;
+    public AttributeType attributeType;
     public final static int HEADER_SIZE = 2;
     private int attributeLength;
-    public byte[] attributeData;
+    public byte[] attributeValue;
     private static final Charset UTF8_CHARSET = Charset.forName("UTF-8");
 
     public Attribute(int code, byte[] data) throws IllegalArgumentException {
-        this.attributeCode = AttributeCode.intToCode(code);
+        this.attributeType = AttributeType.intToCode(code);
         this.attributeLength = data.length + HEADER_SIZE;
-        this.attributeData = data;
+        this.attributeValue = data;
     }
 
     public byte[] toByteArray() {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        bos.write(this.attributeCode.code);
+        bos.write(this.attributeType.type);
         bos.write(this.attributeLength);
-        bos.write(this.attributeData, 0, this.attributeData.length);
+        bos.write(this.attributeValue, 0, this.attributeValue.length);
         return bos.toByteArray();
     }
 
@@ -71,6 +71,6 @@ public class Attribute {
     
     public boolean isValidLength()
     {
-    	return this.attributeCode.isValidLength(this.attributeLength);
+    	return this.attributeType.isValidLength(this.attributeLength);
     }
 }

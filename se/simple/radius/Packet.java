@@ -8,7 +8,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 import se.simple.radius.packet.Attribute;
-import se.simple.radius.packet.AttributeCode;
+import se.simple.radius.packet.AttributeType;
 
 public class Packet {
     final static int CODE_FIELDLENGTH = 1;
@@ -44,9 +44,9 @@ public class Packet {
         this.attributes.add(new Attribute(code, data));
     }
 
-    public Attribute findFirstAttribute(AttributeCode code) {
+    public Attribute findFirstAttribute(AttributeType code) {
         for(Attribute attr : this.attributes) {
-            if(attr.attributeCode.equals(code))
+            if(attr.attributeType.equals(code))
                 return attr;
         }
         return null;

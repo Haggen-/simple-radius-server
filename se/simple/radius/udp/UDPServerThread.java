@@ -9,7 +9,7 @@ import java.security.NoSuchAlgorithmException;
 import se.simple.radius.Packet;
 import se.simple.radius.PacketCode;
 import se.simple.radius.packet.Attribute;
-import se.simple.radius.packet.AttributeCode;
+import se.simple.radius.packet.AttributeType;
 
 public class UDPServerThread implements Runnable {
 
@@ -40,14 +40,14 @@ public class UDPServerThread implements Runnable {
             switch(receivedRadiusPacket.packetCode) {
                 case ACCESS_REQUEST: // For now, we only handle access requests.
                     PacketCode responseCode = PacketCode.ACCESS_REJECT;
-                    Attribute usernameAttr = receivedRadiusPacket.findFirstAttribute(AttributeCode.USERNAME);
-                    Attribute passwordAttr = receivedRadiusPacket.findFirstAttribute(AttributeCode.PASSWORD);
+                    Attribute usernameAttr = receivedRadiusPacket.findFirstAttribute(AttributeType.USERNAME);
+                    Attribute passwordAttr = receivedRadiusPacket.findFirstAttribute(AttributeType.PASSWORD);
 
                     if(usernameAttr != null && passwordAttr != null) {
                     	if(usernameAttr.isValidLength() && passwordAttr.isValidLength())
                     	{
-                    		String receivedUsername = new String(usernameAttr.attributeData, UTF8_CHARSET);
-                    		String receivedPassword = Attribute.decodePassword(receivedRadiusPacket.packetData, passwordAttr.attributeData, sharedSecret.getBytes());
+                    		String receivedUsername = new String(usernameAttr.attributeValue, UTF8_CHARSET);
+                    		String receivedPassword = Attribute.decodePassword(receivedRadiusPacket.packetData, passwordAttr.attributeValue, sharedSecret.getBytes());
 	                        if(userExists(receivedUsername) && isPasswordValid(UDPServer.userHT.get(receivedUsername), receivedPassword)) {
 	                            responseCode = PacketCode.ACCESS_ACCEPT;
 	                        }

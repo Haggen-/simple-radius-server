@@ -1,48 +1,57 @@
 package se.simple.radius.packet;
 
 public enum AttributeType {
-    TYPE_TEXT, TYPE_STRING, TYPE_ADDRESS, TYPE_INTEGER, TYPE_TIME;
+    USERNAME(1, 3, null, AttributeValue.VALUE_STRING), 
+    	PASSWORD(2, 18, 130, AttributeValue.VALUE_STRING), 
+    		REPLY_MESSAGE(18, 3, null, AttributeValue.VALUE_TEXT), 
+    			NAS_IDENTIFIER(32, 3, null, AttributeValue.VALUE_STRING);
 
-    public Object formatData(byte[] data)
-    {
-    	switch(this)
-    	{
-    		case TYPE_TEXT:
-    			//encode UTF-8
-    			if(1 >= data.length &&  data.length <= 253)
-    			{
-    				return data;
-    			}
-				System.out.println("Omit attribute, Text length zero (0)");
-    			break;
-    		case TYPE_STRING:
-    			if(1 >= data.length &&  data.length <= 253)
-    			{
-    				return data;
-    			}
-				System.out.println("Omit attribute, String length zero (0)");
-    			break;
-    		case TYPE_ADDRESS:
-    			if(data.length == 32)
-    			{
-    				return data;
-    			}
-    			break;
-    		case TYPE_INTEGER:
-    			if(data.length == 32)
-    			{
-    				
-    			}
-    			break;
-    		case TYPE_TIME:
-    			if(data.length == 32)
-    			{
-    				
-    			}
-    			break;    		
-    		default:
-    			System.out.println("Invalid attribute type");
-    	}
-    	return null;
+    public final int type;
+    public final AttributeValue value;
+    private final Integer minLength;
+    private final Integer maxLength;
+    /**
+     * set length range, NULL undefined.
+     * @param i
+     * @param minLength
+     * @param maxLength
+     */
+    private AttributeType(int i, Integer minLength, Integer maxLength, AttributeValue value) {
+        this.type = i;
+        this.minLength = minLength;
+        this.maxLength = maxLength;
+        this.value = value;
     }
+    
+    public static AttributeType intToCode(int i) {
+        for(AttributeType packetType : AttributeType.values()) {
+            if(packetType.type == i)
+                return packetType;
+        }
+        throw new IllegalArgumentException("Invalid attribute code for RadiusPacketAttribute");
+    }
+    
+    public boolean isValidLength(int length)
+	{
+		return (checkMin(length) && checkMax(length));
+	}
+	
+	private boolean checkMin(int length)
+	{
+		if(this.minLength == null)
+			return true;
+		return length >= this.minLength;
+	}
+	
+	private boolean checkMax(int length)
+	{
+		if(this.maxLength == null)
+			return true;
+		return length <= this.maxLength;
+	}
+	
+	public Object formatValue(byte[] value)
+	{
+		return this.value.formatValue(value);
+	}
 }
