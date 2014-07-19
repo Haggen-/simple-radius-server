@@ -9,14 +9,14 @@ public enum AttributeValue {
     	{
     		case VALUE_TEXT:
     			//encode UTF-8
-    			if(1 >= data.length &&  data.length <= 253)
+    			if(data.length >= 1 &&  data.length <= 253)
     			{
     				return data;
     			}
 				System.out.println("Omit attribute, Text length zero (0)");
     			break;
     		case VALUE_STRING:
-    			if(1 >= data.length &&  data.length <= 253)
+    			if(data.length >= 1 &&  data.length <= 253)
     			{
     				return data;
     			}
