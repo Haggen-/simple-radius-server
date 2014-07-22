@@ -1,4 +1,4 @@
-package se.simple.radius;
+package se.simple.radius.udp;
 
 import java.io.IOException;
 import java.net.DatagramPacket;

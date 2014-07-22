@@ -1,4 +1,4 @@
-package se.simple.radius;
+package se.simple.radius.packet;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
@@ -6,24 +6,24 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
-public class RadiusPacketAttribute {
-    RadiusPacketAttributeCode attributeCode;
-    final static int HEADER_SIZE = 2;
+public class Attribute {
+    public AttributeType attributeType;
+    public final static int HEADER_SIZE = 2;
     private int attributeLength;
-    byte[] attributeData;
+    public byte[] attributeValue;
     private static final Charset UTF8_CHARSET = Charset.forName("UTF-8");
 
-    RadiusPacketAttribute(int code, byte[] data) throws IllegalArgumentException {
-        this.attributeCode = RadiusPacketAttributeCode.intToCode(code);
+    public Attribute(int code, byte[] data) throws IllegalArgumentException {
+        this.attributeType = AttributeType.intToCode(code);
         this.attributeLength = data.length + HEADER_SIZE;
-        this.attributeData = data;
+        this.attributeValue = data;
     }
 
     public byte[] toByteArray() {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        bos.write(this.attributeCode.code);
+        bos.write(this.attributeType.type);
         bos.write(this.attributeLength);
-        bos.write(this.attributeData, 0, this.attributeData.length);
+        bos.write(this.attributeValue, 0, this.attributeValue.length);
         return bos.toByteArray();
     }
 
@@ -67,5 +67,10 @@ public class RadiusPacketAttribute {
         byte[] currentpasswordData = Arrays.copyOfRange(passwordData, len, passwordData.length);
 
         return decodePassword(requestAuthenticator, remainingPasswordData, sharedSecret) + new String(xorByteArray(generateSharedSecretRAHash(currentpasswordData, sharedSecret), passwordData), UTF8_CHARSET);
+    }
+    
+    public boolean isValidLength()
+    {
+    	return this.attributeType.isValidLength(this.attributeLength);
     }
 }
