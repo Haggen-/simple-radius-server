@@ -8,7 +8,6 @@ import java.nio.charset.Charset;
 public enum AttributeValue {
     VALUE_TEXT, VALUE_STRING, VALUE_ADDRESS, VALUE_INTEGER, VALUE_TIME;
 
-    /*TODO PARSE BYTE VALUE*/
     public String getValue(byte[] data)
     {
     	String value = null;
@@ -16,7 +15,6 @@ public enum AttributeValue {
     	switch(this)
     	{
     		case VALUE_TEXT:
-    			//TODO encode UTF-8
     			if(data.length >= 1 &&  data.length <= 253)
     			{
     				value = new String(data, Charset.forName("UTF-8"));
