@@ -1,5 +1,7 @@
 package se.simple.radius.packet;
 
+import java.io.IOException;
+
 public enum AttributeType {
     USERNAME(1, 3, null, AttributeValue.VALUE_STRING), 
     	PASSWORD(2, 18, 130, AttributeValue.VALUE_STRING), 
@@ -50,8 +52,13 @@ public enum AttributeType {
 		return length <= this.maxLength;
 	}
 	
-	public Object formatValue(byte[] value)
+	public byte[] formatAttributeValue(String data) throws IOException
 	{
-		return this.value.formatValue(value);
+		return this.value.formatValue(data);
+	}
+	
+	public String getAttributeValue(byte[] data)
+	{
+		return this.value.getValue(data);
 	}
 }
