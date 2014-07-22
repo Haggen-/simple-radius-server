@@ -77,8 +77,9 @@ public enum AttributeValue {
 				System.out.println("Omit attribute, String length zero (0)");
     			break;
     		case VALUE_ADDRESS:
-    			bb = ByteBuffer.allocate(4);
-    			for(String tmp : data.split("."))
+    			String[] dataSplit = data.split("\\.");
+    			bb = ByteBuffer.allocate(dataSplit.length);
+    			for(String tmp : dataSplit)
     			{
     				bb.put((byte)Integer.parseInt(tmp));
     			}
