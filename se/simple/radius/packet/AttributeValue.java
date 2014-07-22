@@ -31,13 +31,13 @@ public enum AttributeValue {
 				System.out.println("Omit attribute, String length zero (0)");
     			break;
     		case VALUE_ADDRESS:
-    			bb = ByteBuffer.wrap(data);
-    			
-    			value = (bb.get() & 0xFF)+".";
-    			value += (bb.get() & 0xFF)+".";
-    			value += (bb.get() & 0xFF)+".";
-    			value += (bb.get() & 0xFF);
-    			    			
+    			StringBuilder sb = new StringBuilder();
+    			for(byte tmp : data)
+    			{
+    				sb.append((tmp & 0xFF)+".");
+    			}	
+    			sb.deleteCharAt(sb.length()-1);
+    			value = sb.toString();
     			break;
     		case VALUE_INTEGER:
     			bb = ByteBuffer.wrap(data);
