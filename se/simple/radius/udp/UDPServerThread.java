@@ -5,6 +5,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 
 import se.simple.radius.Packet;
 import se.simple.radius.PacketCode;
@@ -43,6 +44,14 @@ public class UDPServerThread implements Runnable {
                     Attribute usernameAttr = receivedRadiusPacket.findFirstAttribute(AttributeType.USERNAME);
                     Attribute passwordAttr = receivedRadiusPacket.findFirstAttribute(AttributeType.PASSWORD);
 
+                    Attribute stateAttr = receivedRadiusPacket.findFirstAttribute(AttributeType.STATE);
+
+                    if(UDPServer.challengeSent.get(Integer.valueOf(receivedRadiusPacket.packetIdentifier - 1)) != null) {
+                        UDPServer.challengeSent.remove(receivedRadiusPacket.packetIdentifier - 1);
+                        Respond(receivedRadiusPacket, PacketCode.ACCESS_ACCEPT);
+                        return;
+                    }
+
                     if(usernameAttr != null && passwordAttr != null) {
                     	if(usernameAttr.isValidLength() && passwordAttr.isValidLength())
                     	{
@@ -53,12 +62,17 @@ public class UDPServerThread implements Runnable {
 	                        }
                     	}
                     }
+
+                    if(UDPServer.challengeSent.get(Integer.valueOf(receivedRadiusPacket.packetIdentifier - 1)) == null) {
+                        RespondChallenge(receivedRadiusPacket);
+                        UDPServer.challengeSent.put(receivedRadiusPacket.packetIdentifier, true);
+                        return;
+                    }
+
                     if(responseCode.equals(PacketCode.ACCESS_REJECT)) {
                         System.out.println("Invalid attributes for ACCESS REQUEST. Sending ACCESS REJECT.");
                     }
-
-                    byte[] responseData = Packet.createResponsePacket(receivedRadiusPacket, responseCode, this.sharedSecret.getBytes()).toByteArray();
-                    socket.send(new DatagramPacket(responseData, responseData.length, this.receivedPacket.getAddress(), this.receivedPacket.getPort()));
+                    Respond(receivedRadiusPacket, responseCode);
                 break;
                 default:
                     System.out.println("Package code received isn't handled by this server, please switch to a better RADIUS Server to remedy this. Ignoring package.");
@@ -70,5 +84,17 @@ public class UDPServerThread implements Runnable {
             System.out.println("MD5 Encryption failed, algorithm not found. This server requires a version of Java that has access to the MD5 Encryption Algorithm. ");
             ex.printStackTrace();
         }
+    }
+
+    private void Respond(Packet receivedPackage, PacketCode responseCode) throws NoSuchAlgorithmException, IOException
+    {
+        byte[] responseData = Packet.createResponsePacket(receivedPackage, responseCode, this.sharedSecret.getBytes()).toByteArray();
+        socket.send(new DatagramPacket(responseData, responseData.length, this.receivedPacket.getAddress(), this.receivedPacket.getPort()));
+    }
+
+    private void RespondChallenge(Packet receivedPackage) throws NoSuchAlgorithmException, IOException
+    {
+        byte[] challengeData = Packet.createChallengePacket(receivedPackage, this.sharedSecret.getBytes()).toByteArray();
+        socket.send(new DatagramPacket(challengeData, challengeData.length, this.receivedPacket.getAddress(), this.receivedPacket.getPort()));
     }
 }

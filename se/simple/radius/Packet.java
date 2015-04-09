@@ -19,7 +19,7 @@ public class Packet {
     public PacketCode packetCode;
     public byte[] packetData;
 
-    private int packetIdentifier;
+    public int packetIdentifier;
     private short packetLength;
 
 
@@ -105,6 +105,13 @@ public class Packet {
 
     public static Packet createResponsePacket(Packet receivedPackage, PacketCode responseCode, byte[] sharedSecret) throws NoSuchAlgorithmException {
         return new Packet(responseCode, receivedPackage.packetIdentifier, createResponseAuthenticator(responseCode, receivedPackage.packetIdentifier, receivedPackage.packetData, sharedSecret));
+    }
+
+    public static Packet createChallengePacket(Packet receivedPackage, byte[] sharedSecret) throws NoSuchAlgorithmException {
+        String challengeStr = "HUSVAGN";
+        Packet challengePacket =  new Packet(PacketCode.ACCESS_CHALLENGE, receivedPackage.packetIdentifier, createResponseAuthenticator(PacketCode.ACCESS_CHALLENGE, receivedPackage.packetIdentifier, receivedPackage.packetData, sharedSecret));
+        challengePacket.addAttribute(AttributeType.REPLY_MESSAGE.type, challengeStr.length(), challengeStr.getBytes());
+        return challengePacket;
     }
 
     private static byte[] createResponseAuthenticator(PacketCode code, int identifier, byte[] packageData, byte[] sharedSecret) throws NoSuchAlgorithmException {

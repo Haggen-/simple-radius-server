@@ -4,9 +4,12 @@ import java.io.IOException;
 
 public enum AttributeType {
     USERNAME(1, 3, null, AttributeValue.VALUE_STRING), 
-    	PASSWORD(2, 18, 130, AttributeValue.VALUE_STRING), 
-    		REPLY_MESSAGE(18, 3, null, AttributeValue.VALUE_TEXT), 
-    			NAS_IDENTIFIER(32, 3, null, AttributeValue.VALUE_STRING);
+    PASSWORD(2, 18, 130, AttributeValue.VALUE_STRING),
+    REPLY_MESSAGE(18, 3, null, AttributeValue.VALUE_TEXT),
+    NAS_IDENTIFIER(32, 3, null, AttributeValue.VALUE_STRING),
+    NASIPADDRESS(4, 6, 6, AttributeValue.VALUE_ADDRESS),
+    STATE(4, 3, null, AttributeValue.VALUE_STRING),
+    VENDORSPECIFIC(26, 7, null, AttributeValue.VALUE_STRING);
 
     public final int type;
     public final AttributeValue value;

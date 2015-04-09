@@ -15,6 +15,7 @@ public class UDPServer {
     final ExecutorService service;
     public final String sharedSecret;
     public static volatile HashMap<String, String> userHT;
+    public static volatile HashMap<Integer, Boolean> challengeSent = new HashMap<>();
 
     private UDPServer(int portNumber, String sharedSecret) throws SocketException {
         this.isRunning = true;
@@ -24,7 +25,7 @@ public class UDPServer {
 
         UDPServer.userHT = new HashMap<String, String>(); // Using a simple Hashtable instead of an actual database.
         UDPServer.userHT.put("frans1", "fran123!");
-        UDPServer.userHT.put("frans2", "fran123!");
+        UDPServer.userHT.put("frans10", "fran123!");
     }
 
     public static void main(String [] args) throws SocketException, NoSuchAlgorithmException {
@@ -33,6 +34,7 @@ public class UDPServer {
             return;
         }
         try {
+            System.out.println("Listening to port '" + args[0] + "' for shared secret '" + args[1] + "'.");
             UDPServer server = new UDPServer(Integer.parseInt(args[0]), args[1]);
 
             while(server.isRunning) {
